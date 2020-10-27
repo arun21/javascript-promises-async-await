@@ -4,7 +4,7 @@ const movies = require("/data/movies.json");
 
 export const fetchMovies = () => {
   const resolveFunction = () => movies;
-  fetchWithTimeout(1000).then(resolveFunction);
+  return fetchWithTimeout(1000).then(resolveFunction);
 };
 
 const moviePromise = fetchMovies();
