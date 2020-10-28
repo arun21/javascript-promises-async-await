@@ -1,22 +1,22 @@
-const expect = require('chai').expect;
-const fs = require('fs');
-const path = require('path');
-const acorn = require('acorn');
-const walk = require('acorn-walk');
-const _ = require('lodash');
-const { checkFileExists } = require('../utils');
-describe('Module 7', () => {
-  it('should import the new async functions `asyncFetchBooks()` and `asyncFetchMovies()` from services.js @import-new-async-functions', () => {
-    if (checkFileExists('index')) {
+const expect = require("chai").expect;
+const fs = require("fs");
+const path = require("path");
+const acorn = require("acorn");
+const walk = require("acorn-walk");
+const _ = require("lodash");
+const { checkFileExists } = require("../utils");
+describe("Module 7", () => {
+  it("should import the new async functions `asyncFetchBooks()` and `asyncFetchMovies()` from services.js @import-new-async-functions", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const allImports = [];
       walk.simple(res, {
         ImportDeclaration(node) {
-          if (node.source.value === './services') {
+          if (node.source.value === "./services") {
             const results = node.specifiers.reduce((acc, val) => {
               acc.push(val.imported.name);
               return acc;
@@ -25,35 +25,35 @@ describe('Module 7', () => {
           }
         },
       });
-      expect(allImports.includes('asyncFetchBooks')).to.equal(
+      expect(allImports.includes("asyncFetchBooks")).to.equal(
         true,
-        'You must import `asyncFetchBooks` from services.js',
+        "You must import `asyncFetchBooks` from services.js"
       );
-      expect(allImports.includes('asyncFetchMovies')).to.equal(
+      expect(allImports.includes("asyncFetchMovies")).to.equal(
         true,
-        'You must import `asyncFetchMovies` from services.js',
+        "You must import `asyncFetchMovies` from services.js"
       );
     }
   });
 
-  it('should have async function `getBooksAndMoviesAsync()` @create-async-get-books-and-movies', () => {
-    if (checkFileExists('index')) {
+  it("should have async function `getBooksAndMoviesAsync()` @create-async-get-books-and-movies", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const localFunctions = [];
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksAndMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksAndMoviesAsync") {
             localFunctions.push(node);
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksAndMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksAndMoviesAsync"
           ) {
             localFunctions.push(node);
           }
@@ -61,33 +61,33 @@ describe('Module 7', () => {
       });
       expect(
         localFunctions[0].declarations
-          ? _.get(localFunctions[0], 'declarations[0].id.name', '')
-          : _.get(localFunctions[0], 'id.name', ''),
+          ? _.get(localFunctions[0], "declarations[0].id.name", "")
+          : _.get(localFunctions[0], "id.name", "")
       ).to.equal(
-        'getBooksAndMoviesAsync',
-        'You must have an asnyc function named getBooksAndMoviesAsync() defined.',
+        "getBooksAndMoviesAsync",
+        "You must have an asnyc function named getBooksAndMoviesAsync() defined."
       );
     }
   });
 
-  it('should have a try/catch block in `getBooksAndMoviesAsync()` @try-catch-in-async-get-books-and-movies', () => {
-    if (checkFileExists('index')) {
+  it("should have a try/catch block in `getBooksAndMoviesAsync()` @try-catch-in-async-get-books-and-movies", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksAndMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksAndMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksAndMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksAndMoviesAsync"
           ) {
             func.node = node;
           }
@@ -102,58 +102,58 @@ describe('Module 7', () => {
       const catchWalk = {};
       walk.simple(tryBlocks[0], {
         CatchClause(node) {
-          catchWalk['CatchClause'] = node;
+          catchWalk["CatchClause"] = node;
         },
         Literal(node) {
-          catchWalk['Literal'] = node.value;
+          catchWalk["Literal"] = node.value;
         },
         MemberExpression(node) {
-          catchWalk['MemberExpression'] = node;
+          catchWalk["MemberExpression"] = node;
         },
         Identifier(node) {
-          catchWalk['Identifier'] = node;
+          catchWalk["Identifier"] = node;
         },
       });
       expect(tryBlocks.length).to.equal(1);
       expect(catchWalk.Literal).to.equal(
-        'Error fetching books and movies',
-        'You should log the message `Error fetching books and movies` in the catch clause.',
+        "Error fetching books and movies",
+        "You should log the message `Error fetching books and movies` in the catch clause."
       );
-      expect(_.get(catchWalk['MemberExpression'], 'object.name', '')).to.equal(
-        'console',
-        'You should be logging the results via the `console` object.',
+      expect(_.get(catchWalk["MemberExpression"], "object.name", "")).to.equal(
+        "console",
+        "You should be logging the results via the `console` object."
       );
       expect(
-        _.get(catchWalk['MemberExpression'], 'property.name', ''),
+        _.get(catchWalk["MemberExpression"], "property.name", "")
       ).to.equal(
-        'log',
-        'You should be logging the results with the `log` method on the `console` object.',
+        "log",
+        "You should be logging the results with the `log` method on the `console` object."
       );
-      expect(catchWalk['Identifier'].name).to.equal(
-        'error',
-        'You should also log the `error` object in the catch clause.',
+      expect(catchWalk["Identifier"].name).to.equal(
+        "error",
+        "You should also log the `error` object in the catch clause."
       );
     }
   });
 
-  it('should use Promise.all() to await the results @call-and-await-promise-all', () => {
-    if (checkFileExists('index')) {
+  it("should use Promise.all() to await the results @call-and-await-promise-all", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksAndMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksAndMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksAndMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksAndMoviesAsync"
           ) {
             func.node = node;
           }
@@ -181,7 +181,7 @@ describe('Module 7', () => {
           tryBlock.AwaitExpression = node;
         },
         MemberExpression(node) {
-          if (_.get(node, 'object.name', '') === 'Promise') {
+          if (_.get(node, "object.name", "") === "Promise") {
             tryBlock.MemberExpression = node;
           }
         },
@@ -196,59 +196,59 @@ describe('Module 7', () => {
         },
       });
 
-      expect(_.get(tryBlock.MemberExpression, 'object.name', '')).to.equal(
-        'Promise',
+      expect(_.get(tryBlock.MemberExpression, "object.name", "")).to.equal(
+        "Promise"
       );
-      expect(_.get(tryBlock.MemberExpression, 'property.name', '')).to.equal(
-        'all',
-      );
-
-      expect(
-        _.get(tryBlock.VariableDeclarator, 'id.elements[0].name', ''),
-      ).to.equal(
-        'books',
-        'You should set the first var in the destructered variable declaration to `books`.',
-      );
-      expect(
-        _.get(tryBlock.VariableDeclarator, 'id.elements[1].name', ''),
-      ).to.equal(
-        'movies',
-        'You should set the second var in the destructered variable declaration to `movies`.',
+      expect(_.get(tryBlock.MemberExpression, "property.name", "")).to.equal(
+        "all"
       );
 
       expect(
-        _.get(tryBlock.ArrayExpression, 'elements[0].callee.name', ''),
+        _.get(tryBlock.VariableDeclarator, "id.elements[0].name", "")
       ).to.equal(
-        'asyncFetchBooks',
-        'You need to pass an array to `Promise.all([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchBooks()` at the first index position.',
+        "books",
+        "You should set the first var in the destructered variable declaration to `books`."
       );
       expect(
-        _.get(tryBlock.ArrayExpression, 'elements[1].callee.name', ''),
+        _.get(tryBlock.VariableDeclarator, "id.elements[1].name", "")
       ).to.equal(
-        'asyncFetchMovies',
-        'You need to pass an array to `Promise.all([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchMovies()` at the second index position.',
+        "movies",
+        "You should set the second var in the destructered variable declaration to `movies`."
+      );
+
+      expect(
+        _.get(tryBlock.ArrayExpression, "elements[0].callee.name", "")
+      ).to.equal(
+        "asyncFetchBooks",
+        "You need to pass an array to `Promise.all([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchBooks()` at the first index position."
+      );
+      expect(
+        _.get(tryBlock.ArrayExpression, "elements[1].callee.name", "")
+      ).to.equal(
+        "asyncFetchMovies",
+        "You need to pass an array to `Promise.all([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchMovies()` at the second index position."
       );
     }
   });
 
-  it('should return both books and movies as an object @return-books-and-movies', () => {
-    if (checkFileExists('index')) {
+  it("should return both books and movies as an object @return-books-and-movies", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksAndMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksAndMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksAndMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksAndMoviesAsync"
           ) {
             func.node = node;
           }
@@ -268,38 +268,38 @@ describe('Module 7', () => {
       });
 
       expect(
-        _.get(tryBlock.ReturnStatement, 'argument.properties[0].key.name', ''),
+        _.get(tryBlock.ReturnStatement, "argument.properties[0].key.name", "")
       ).to.be.oneOf(
-        ['books', 'movies'],
-        'You should return an object with the keys `books` and `movies` equal to their respective variables defined above.',
+        ["books", "movies"],
+        "You should return an object with the keys `books` and `movies` equal to their respective variables defined above."
       );
       expect(
-        _.get(tryBlock.ReturnStatement, 'argument.properties[1].key.name', ''),
+        _.get(tryBlock.ReturnStatement, "argument.properties[1].key.name", "")
       ).to.be.oneOf(
-        ['books', 'movies'],
-        'You should return an object with the keys `books` and `movies` equal to their respective variables defined above.',
+        ["books", "movies"],
+        "You should return an object with the keys `books` and `movies` equal to their respective variables defined above."
       );
     }
   });
 
-  it('should have async function `getBooksOrMoviesAsync()` @create-async-get-books-or-movies', () => {
-    if (checkFileExists('index')) {
+  it("should have async function `getBooksOrMoviesAsync()` @create-async-get-books-or-movies", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const localFunctions = [];
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksOrMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksOrMoviesAsync") {
             localFunctions.push(node);
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksOrMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksOrMoviesAsync"
           ) {
             localFunctions.push(node);
           }
@@ -307,33 +307,33 @@ describe('Module 7', () => {
       });
       expect(
         localFunctions[0].declarations
-          ? _.get(localFunctions[0], 'declarations[0].id.name', '')
-          : _.get(localFunctions[0], 'id.name', ''),
+          ? _.get(localFunctions[0], "declarations[0].id.name", "")
+          : _.get(localFunctions[0], "id.name", "")
       ).to.equal(
-        'getBooksOrMoviesAsync',
-        'You must have an asnyc function named getBooksOrMoviesAsync() defined.',
+        "getBooksOrMoviesAsync",
+        "You must have an asnyc function named getBooksOrMoviesAsync() defined."
       );
     }
   });
 
-  it('should have a try/catch block in `getBooksOrMoviesAsync()` @add-try-block-get-books-or-movies', () => {
-    if (checkFileExists('index')) {
+  it("should have a try/catch block in `getBooksOrMoviesAsync()` @add-try-block-get-books-or-movies", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksOrMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksOrMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksOrMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksOrMoviesAsync"
           ) {
             func.node = node;
           }
@@ -348,58 +348,58 @@ describe('Module 7', () => {
       const catchWalk = {};
       walk.simple(tryBlocks[0], {
         CatchClause(node) {
-          catchWalk['CatchClause'] = node;
+          catchWalk["CatchClause"] = node;
         },
         Literal(node) {
-          catchWalk['Literal'] = node.value;
+          catchWalk["Literal"] = node.value;
         },
         MemberExpression(node) {
-          catchWalk['MemberExpression'] = node;
+          catchWalk["MemberExpression"] = node;
         },
         Identifier(node) {
-          catchWalk['Identifier'] = node;
+          catchWalk["Identifier"] = node;
         },
       });
       expect(tryBlocks.length).to.equal(1);
       expect(catchWalk.Literal).to.equal(
-        'Error waiting for the promise race',
-        'You should log the message `Error waiting for the promise race` in the catch clause.',
+        "Error waiting for the promise race",
+        "You should log the message `Error waiting for the promise race` in the catch clause."
       );
-      expect(_.get(catchWalk['MemberExpression'], 'object.name', '')).to.equal(
-        'console',
-        'You should be logging the results via the `console` object.',
+      expect(_.get(catchWalk["MemberExpression"], "object.name", "")).to.equal(
+        "console",
+        "You should be logging the results via the `console` object."
       );
       expect(
-        _.get(catchWalk['MemberExpression'], 'property.name', ''),
+        _.get(catchWalk["MemberExpression"], "property.name", "")
       ).to.equal(
-        'error',
-        'You should be logging the results with the `log` method on the `console` object.',
+        "error",
+        "You should be logging the results with the `log` method on the `console` object."
       );
-      expect(catchWalk['Identifier'].name).to.equal(
-        'error',
-        'You should also log the `error` object in the catch clause.',
+      expect(catchWalk["Identifier"].name).to.equal(
+        "error",
+        "You should also log the `error` object in the catch clause."
       );
     }
   });
 
-  it('should use Promise.race() to await the results @call-promise-race', () => {
-    if (checkFileExists('index')) {
+  it("should use Promise.race() to await the results @call-promise-race", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksOrMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksOrMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksOrMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksOrMoviesAsync"
           ) {
             func.node = node;
           }
@@ -428,7 +428,7 @@ describe('Module 7', () => {
             tryBlock.AwaitExpression = node;
           },
           MemberExpression(node) {
-            if (_.get(node, 'object.name', '') === 'Promise') {
+            if (_.get(node, "object.name", "") === "Promise") {
               tryBlock.MemberExpression = node;
             }
           },
@@ -443,54 +443,54 @@ describe('Module 7', () => {
           },
         });
 
-        expect(_.get(tryBlock.MemberExpression, 'object.name', '')).to.equal(
-          'Promise',
-          'You need to use the Promise object to call the `race` method.',
+        expect(_.get(tryBlock.MemberExpression, "object.name", "")).to.equal(
+          "Promise",
+          "You need to use the Promise object to call the `race` method."
         );
-        expect(_.get(tryBlock.MemberExpression, 'property.name', '')).to.equal(
-          'race',
-          'You need to call the `race()` method on the Promise object.',
+        expect(_.get(tryBlock.MemberExpression, "property.name", "")).to.equal(
+          "race",
+          "You need to call the `race()` method on the Promise object."
         );
 
-        expect(_.get(tryBlock.VariableDeclarator, 'id.name', '')).to.equal(
-          'values',
-          'You should set the value of the Promise.race call to `values`.',
+        expect(_.get(tryBlock.VariableDeclarator, "id.name", "")).to.equal(
+          "values",
+          "You should set the value of the Promise.race call to `values`."
         );
 
         expect(
-          _.get(tryBlock.ArrayExpression, 'elements[0].callee.name', ''),
+          _.get(tryBlock.ArrayExpression, "elements[0].callee.name", "")
         ).to.equal(
-          'asyncFetchBooks',
-          'You need to pass an array to `Promise.race([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchBooks()` at the first index position.',
+          "asyncFetchBooks",
+          "You need to pass an array to `Promise.race([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchBooks()` at the first index position."
         );
         expect(
-          _.get(tryBlock.ArrayExpression, 'elements[1].callee.name', ''),
+          _.get(tryBlock.ArrayExpression, "elements[1].callee.name", "")
         ).to.equal(
-          'asyncFetchMovies',
-          'You need to pass an array to `Promise.race([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchMovies()` at the second index position.',
+          "asyncFetchMovies",
+          "You need to pass an array to `Promise.race([asyncFetchBooks(), asyncFetchMovies()])` that includes `asyncFetchMovies()` at the second index position."
         );
       }
     }
   });
 
-  it('should return results of the race @promise-race-return-results', () => {
-    if (checkFileExists('index')) {
+  it("should return results of the race @promise-race-return-results", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
       const func = {};
       walk.simple(res, {
         FunctionDeclaration(node) {
-          if (_.get(node, 'id.name', '') === 'getBooksOrMoviesAsync') {
+          if (_.get(node, "id.name", "") === "getBooksOrMoviesAsync") {
             func.node = node;
           }
         },
         VariableDeclaration(node) {
           if (
-            _.get(node, 'declarations[0].id.name', '') ===
-            'getBooksOrMoviesAsync'
+            _.get(node, "declarations[0].id.name", "") ===
+            "getBooksOrMoviesAsync"
           ) {
             func.node = node;
           }
@@ -509,30 +509,30 @@ describe('Module 7', () => {
         },
       });
 
-      expect(_.get(tryBlock.ReturnStatement, 'argument.name', '')).to.equal(
-        'values',
-        'You should return the `values` variable.',
+      expect(_.get(tryBlock.ReturnStatement, "argument.name", "")).to.equal(
+        "values",
+        "You should return the `values` variable."
       );
     }
   });
 
-  it('should log the results of getBooksAndMovies @exec-getbooksandmovies-log', () => {
-    if (checkFileExists('index')) {
+  it("should log the results of getBooksAndMovies @exec-getbooksandmovies-log", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
 
       const parent = {};
       const func = {};
       walk.ancestor(res, {
         CallExpression(node, ancestors) {
-          if (_.get(node, 'callee.name', '') === 'getBooksAndMoviesAsync') {
-            ancestors.map(val => {
+          if (_.get(node, "callee.name", "") === "getBooksAndMoviesAsync") {
+            ancestors.map((val) => {
               if (
-                val.type === 'CallExpression' &&
-                _.get(val, 'arguments[0].params[0].name', '') === 'results'
+                val.type === "CallExpression" &&
+                _.get(val, "arguments[0].params[0].name", "") === "results"
               )
                 parent.node = val;
             });
@@ -542,7 +542,7 @@ describe('Module 7', () => {
 
       walk.ancestor(parent.node, {
         ArrowFunctionExpression(node) {
-          if (_.get(node, 'params[0].name', '') === 'results') {
+          if (_.get(node, "params[0].name", "") === "results") {
             func.raceThenNode = node;
           }
         },
@@ -555,56 +555,56 @@ describe('Module 7', () => {
       });
 
       // Using console.log
-      expect(_.get(func.raceThenBody, 'callee.object.name', '')).to.equal(
-        'console',
-        'Make sure to use the `console` object for logging',
+      expect(_.get(func.raceThenBody, "callee.object.name", "")).to.equal(
+        "console",
+        "Make sure to use the `console` object for logging"
       );
-      expect(_.get(func.raceThenBody, 'callee.property.name', '')).to.equal(
-        'log',
-        'Make sure to use the `log()` method on the `console` object',
+      expect(_.get(func.raceThenBody, "callee.property.name", "")).to.equal(
+        "log",
+        "Make sure to use the `log()` method on the `console` object"
       );
 
       // logging the correct message
       expect(
-        _.get(func.raceThenBody, 'arguments[1].properties[0].key.name', ''),
+        _.get(func.raceThenBody, "arguments[1].properties[0].key.name", "")
       ).to.be.oneOf(
-        ['movies', 'books'],
-        'You should log both `movies` and `book` in an object.',
+        ["movies", "books"],
+        "You should log both `movies` and `book` in an object."
       );
       expect(
-        _.get(func.raceThenBody, 'arguments[1].properties[1].key.name', ''),
+        _.get(func.raceThenBody, "arguments[1].properties[1].key.name", "")
       ).to.be.oneOf(
-        ['movies', 'books'],
-        'You should log both `movies` and `book` in an object.',
+        ["movies", "books"],
+        "You should log both `movies` and `book` in an object."
       );
     }
   });
 
-  it('should log the results of getBooksOrMovies @exec-getbooksoromovies-log', () => {
-    if (checkFileExists('index')) {
+  xit("should log the results of getBooksOrMovies @exec-getbooksoromovies-log", () => {
+    if (checkFileExists("index")) {
       let file = fs.readFileSync(
-        path.join(process.cwd(), 'src/index.js'),
-        'utf8',
+        path.join(process.cwd(), "src/index.js"),
+        "utf8"
       );
-      const res = acorn.parse(file, { sourceType: 'module' });
+      const res = acorn.parse(file, { sourceType: "module" });
 
       const parent = {};
       const func = {};
 
       walk.findNodeAt(res, null, null, (nodeType, node) => {
         if (
-          nodeType === 'CallExpression' &&
-          _.get(node, 'callee.object.callee.object.callee.name', '') ===
-            'getBooksOrMoviesAsync'
+          nodeType === "CallExpression" &&
+          _.get(node, "callee.object.callee.object.callee.name", "") ===
+            "getBooksOrMoviesAsync"
         ) {
           parent.node = node;
         }
       });
 
       walk.ancestor(parent.node, {
-        ArrowFunctionExpression(node, ancestors) {
+        ArrowFunctionExpression(node) {
           // ancestors.map(val => console.dir(val, { depth: 8 }));
-          if (_.get(node, 'params[0].name', '') === 'results') {
+          if (_.get(node, "params[0].name", "") === "results") {
             func.raceThenNode = node;
           }
         },
@@ -617,19 +617,19 @@ describe('Module 7', () => {
       });
 
       // Using console.log
-      expect(_.get(func.raceThenBody, 'callee.object.name', '')).to.equal(
-        'console',
-        'Make sure to use the `console` object for logging',
+      expect(_.get(func.raceThenBody, "callee.object.name", "")).to.equal(
+        "console",
+        "Make sure to use the `console` object for logging"
       );
-      expect(_.get(func.raceThenBody, 'callee.property.name', '')).to.equal(
-        'log',
-        'Make sure to use the `log()` method on the `console` object',
+      expect(_.get(func.raceThenBody, "callee.property.name", "")).to.equal(
+        "log",
+        "Make sure to use the `log()` method on the `console` object"
       );
 
       // logging the correct message
       expect(
-        _.get(func.raceThenBody, 'arguments[1].properties[0].key.name', ''),
-      ).to.equal('results', 'You should log `results` in an object.');
+        _.get(func.raceThenBody, "arguments[1].properties[0].key.name", "")
+      ).to.equal("results", "You should log `results` in an object.");
     }
   });
 });
