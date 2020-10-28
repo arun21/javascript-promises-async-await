@@ -580,7 +580,7 @@ describe("Module 7", () => {
     }
   });
 
-  xit("should log the results of getBooksOrMovies @exec-getbooksoromovies-log", () => {
+  it("should log the results of getBooksOrMovies @exec-getbooksoromovies-log", () => {
     if (checkFileExists("index")) {
       let file = fs.readFileSync(
         path.join(process.cwd(), "src/index.js"),
